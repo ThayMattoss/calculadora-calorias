@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Calorias</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ec4899, #f43f5e);
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ec4899, #f43f5e);
+            padding: 24px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .form {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #ec4899;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ec4899, #f43f5e);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            padding: 24px;
+            background: #f9fafb;
+        }
+
+        .results h2 {
+            color: #ec4899;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .result-value.highlight {
+            color: #ec4899;
+        }
+
+        .macros-title {
+            color: #ec4899;
+            font-weight: bold;
+            margin: 16px 0 8px 0;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Calculadora de Calorias</h1>
+            <p>Calorias e Macronutrientes</p>
+        </div>
+
+        <div class="form">
+            <div class="form-group">
+                <label for="peso">Peso (kg):</label>
+                <input type="number" id="peso" placeholder="Ex: 70">
+            </div>
+
+            <div class="form-group">
+                <label for="altura">Altura (cm):</label>
+                <input type="number" id="altura" placeholder="Ex: 170">
+            </div>
+
+            <div class="form-group">
+                <label for="idade">Idade (anos):</label>
+                <input type="number" id="idade" placeholder="Ex: 35">
+            </div>
+
+            <div class="form-group">
+                <label for="sexo">Sexo:</label>
+                <select id="sexo">
+                    <option value="feminino">Feminino</option>
+                    <option value="masculino">Masculino</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="atividade">Atividade Física:</label>
+                <select id="atividade">
+                    <option value="sedentario">Sedentário</option>
+                    <option value="leve">Light Exercise</option>
+                    <option value="moderado">Moderate Exercise</option>
+                    <option value="intenso">Heavy Exercise</option>
+                    <option value="muito_intenso">Athlete</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="deficit">Déficit Calórico (kcal):</label>
+                <input type="number" id="deficit" placeholder="Ex: 300">
+            </div>
+
+            <button class="calculate-btn" onclick="calcular()">CALCULAR</button>
+        </div>
+
+        <div id="results" class="results hidden">
+            <h2>Resultados</h2>
+            
+            <div class="result-item">
+                <span class="result-label">Gasto energético basal:</span>
+                <span id="bmr" class="result-value">-</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">Gasto energético total:</span>
+                <span id="tdee" class="result-value">-</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">Calorias para objetivo:</span>
+                <span id="calorias-objetivo" class="result-value highlight">-</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">IMC:</span>
+                <span id="imc" class="result-value">-</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">Peso mínimo ideal:</span>
+                <span id="peso-minimo" class="result-value">-</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">Peso magro (máximo ideal):</span>
+                <span id="peso-magro" class="result-value">-</span>
+            </div>
+
+            <div class="macros-title">Macronutrientes</div>
+            
+            <div class="result-item">
+                <span class="result-label">Proteínas:</span>
+                <span id="proteinas" class="result-value">-</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">Gorduras:</span>
+                <span id="gorduras" class="result-value">-</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">Carboidratos:</span>
+                <span id="carboidratos" class="result-value">-</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const niveis = {
+            sedentario: { nome: 'Sedentário', multiplicador: 1.2 },
+            leve: { nome: 'Light Exercise', multiplicador: 1.375 },
+            moderado: { nome: 'Moderate Exercise', multiplicador: 1.55 },
+            intenso: { nome: 'Heavy Exercise', multiplicador: 1.725 },
+            muito_intenso: { nome: 'Athlete', multiplicador: 1.9 }
+        };
+
+        function calcularBMR(peso, altura, idade, sexo) {
+            // Fórmula Mifflin-St Jeor
+            if (sexo === 'masculino') {
+                return (10 * peso) + (6.25 * altura) - (5 * idade) + 5;
+            } else {
+                return (10 * peso) + (6.25 * altura) - (5 * idade) - 161;
+            }
+        }
+
+        function calcularIMC(peso, altura) {
+            const alturaM = altura / 100;
+            return peso / (alturaM * alturaM);
+        }
+
+        function classificarIMC(imc) {
+            if (imc < 18.5) return 'Abaixo do peso';
+            if (imc < 25) return 'Peso normal';
+            if (imc < 30) return 'Sobrepeso';
+            return 'Obesidade';
+        }
+
+        function calcular() {
+            const peso = parseFloat(document.getElementById('peso').value);
+            const altura = parseFloat(document.getElementById('altura').value);
+            const idade = parseFloat(document.getElementById('idade').value);
+            const sexo = document.getElementById('sexo').value;
+            const atividade = document.getElementById('atividade').value;
+            const deficit = parseFloat(document.getElementById('deficit').value) || 0;
+
+            if (!peso || !altura || !idade) {
+                alert('Preencha peso, altura e idade');
+                return;
+            }
+
+            // Cálculos base
+            const bmr = calcularBMR(peso, altura, idade, sexo);
+            const tdee = bmr * niveis[atividade].multiplicador;
+            const caloriasObjetivo = tdee - deficit;
+
+            // IMC
+            const imc = calcularIMC(peso, altura);
+            const classificacao = classificarIMC(imc);
+
+            // Peso magro (peso máximo ideal)
+            const alturaM = altura / 100;
+            const pesoMinimo = 18.5 * (alturaM * alturaM);
+            const pesoMagro = 24.9 * (alturaM * alturaM);
+
+            // Macros baseados no peso magro
+            const proteinaG = pesoMagro * (sexo === 'masculino' ? 2.0 : 1.6);
+            const gorduraG = pesoMagro * 1;
+
+            // Conversão para calorias
+            const proteinaCal = proteinaG * 4;
+            const gorduraCal = gorduraG * 9;
+            const carboidratoCal = caloriasObjetivo - (proteinaCal + gorduraCal);
+            const carboidratoG = carboidratoCal / 4;
+
+            // Exibir resultados
+            document.getElementById('bmr').textContent = bmr.toFixed(1) + ' kcal';
+            document.getElementById('tdee').textContent = tdee.toFixed(1) + ' kcal';
+            document.getElementById('calorias-objetivo').textContent = caloriasObjetivo.toFixed(1) + ' kcal';
+            document.getElementById('imc').textContent = imc.toFixed(1) + ' (' + classificacao + ')';
+            document.getElementById('peso-minimo').textContent = pesoMinimo.toFixed(1) + ' kg';
+            document.getElementById('peso-magro').textContent = pesoMagro.toFixed(1) + ' kg';
+            document.getElementById('proteinas').textContent = proteinaG.toFixed(1) + 'g (' + proteinaCal.toFixed(0) + ' kcal)';
+            document.getElementById('gorduras').textContent = gorduraG.toFixed(1) + 'g (' + gorduraCal.toFixed(0) + ' kcal)';
+            document.getElementById('carboidratos').textContent = Math.max(0, carboidratoG).toFixed(1) + 'g (' + Math.max(0, carboidratoCal).toFixed(0) + ' kcal)';
+
+            // Mostrar resultados
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Permitir cálculo com Enter
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calcular();
+            }
+        });
+    </script>
+</body>
+</html>
