@@ -301,6 +301,93 @@
             box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
 
+        /* === ESTILOS PARA CATEGORIAS DE ALIMENTOS === */
+        
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .category-tab {
+            padding: 10px 16px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .category-tab:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            transform: translateY(-1px);
+        }
+
+        .category-tab.active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border-color: #2563eb;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .food-item {
+            display: none;
+        }
+
+        .food-item.show {
+            display: flex;
+        }
+
+        .food-item[data-category="proteinas"] {
+            border-left: 4px solid #ef4444;
+        }
+
+        .food-item[data-category="carboidratos"] {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .food-item[data-category="gorduras"] {
+            border-left: 4px solid #10b981;
+        }
+
+        .food-item[data-category="frutas"] {
+            border-left: 4px solid #f97316;
+        }
+
+        .food-item[data-category="vegetais"] {
+            border-left: 4px solid #22c55e;
+        }
+
+        .food-item[data-category="lacteos"] {
+            border-left: 4px solid #8b5cf6;
+        }
+
+        .food-item[data-category="outros"] {
+            border-left: 4px solid #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .category-tabs {
+                gap: 6px;
+                padding: 8px;
+            }
+
+            .category-tab {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+        }
+
         .calculate-btn {
             width: 100%;
             background: linear-gradient(135deg, #10b981, #059669);
@@ -1125,7 +1212,23 @@
                 
                 <div class="form-group">
                     <label>Nome do Alimento:</label>
-                    <input type="text" id="new-food-name" placeholder="Ex: Banana, maçã">
+                    <input type="text" id="new-food-name" placeholder="Ex: Banana, maçã" oninput="suggestCategory()">
+                </div>
+                
+                <div class="form-group">
+                    <label>Categoria:</label>
+                    <select id="new-food-category">
+                        <option value="outros">🍴 Outros</option>
+                        <option value="proteinas">🥩 Proteínas</option>
+                        <option value="carboidratos">🍞 Carboidratos</option>
+                        <option value="gorduras">🥑 Gorduras</option>
+                        <option value="frutas">🍎 Frutas</option>
+                        <option value="vegetais">🥬 Vegetais</option>
+                        <option value="lacteos">🥛 Laticínios</option>
+                    </select>
+                    <div id="category-suggestion" style="font-size: 12px; color: #10b981; margin-top: 4px; display: none;">
+                        💡 Sugestão automática aplicada
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -1169,6 +1272,19 @@
             <!-- Lista de Alimentos Personalizados -->
             <div style="background: white; border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px;">
                 <h3 style="margin-bottom: 16px;">📋 Meus Alimentos Adicionados</h3>
+                
+                <!-- Sistema de Abas para Categorias -->
+                <div class="category-tabs">
+                    <button class="category-tab active" onclick="showCategory('todos')">🍽️ Todos</button>
+                    <button class="category-tab" onclick="showCategory('proteinas')">🥩 Proteínas</button>
+                    <button class="category-tab" onclick="showCategory('carboidratos')">🍞 Carboidratos</button>
+                    <button class="category-tab" onclick="showCategory('gorduras')">🥑 Gorduras</button>
+                    <button class="category-tab" onclick="showCategory('frutas')">🍎 Frutas</button>
+                    <button class="category-tab" onclick="showCategory('vegetais')">🥬 Vegetais</button>
+                    <button class="category-tab" onclick="showCategory('lacteos')">🥛 Laticínios</button>
+                    <button class="category-tab" onclick="showCategory('outros')">🍴 Outros</button>
+                </div>
+                
                 <div id="custom-foods-list">
                     <div style="color: #6b7280; text-align: center; padding: 20px;">
                         Nenhum alimento personalizado adicionado ainda
@@ -1235,7 +1351,8 @@
     <div id="barcode-scanner-modal" class="barcode-scanner-container" style="display: none;">
         <div class="scanner-header">
             <h3>📱 Scanner de Código de Barras</h3>
-            <p>Posicione o código de barras dentro do quadro</p>
+            <p>📷 Aponte a câmera para o código de barras do produto</p>
+            <p style="font-size: 14px; opacity: 0.7;">💡 Certifique-se de permitir o acesso à câmera</p>
         </div>
         
         <div id="barcode-reader"></div>
@@ -1246,7 +1363,8 @@
         </div>
         
         <div style="color: white; margin-top: 16px; font-size: 14px; text-align: center; opacity: 0.8;">
-            <p>💡 Dica: Mantenha o código de barras bem iluminado e dentro do quadro</p>
+            <p>⚠️ Se a câmera não abrir, verifique as permissões do navegador</p>
+            <p style="font-size: 12px; margin-top: 8px;">🔄 Ou use "Digite o código manualmente" como alternativa</p>
         </div>
     </div>
 
@@ -1805,8 +1923,24 @@
             // Por último atualizar o resumo com os dados carregados
             updateSummary();
             
+            // Atualizar lista de alimentos personalizados (só se a seção existir)
+            setTimeout(() => {
+                const customFoodsContainer = document.getElementById('custom-foods-list');
+                if (customFoodsContainer) {
+                    updateCustomFoodsList();
+                }
+            }, 100);
+            
             // Mostrar descrição padrão da atividade física
             showActivityDescription();
+            
+            // Teste do reconhecimento automático (apenas no console)
+            console.log('🔍 Testando reconhecimento automático de categorias:');
+            const testFoods = ['Frango grelhado', 'Arroz integral', 'Banana', 'Leite desnatado', 'Alface', 'Azeite de oliva'];
+            testFoods.forEach(food => {
+                const category = getCategoryFromName(food);
+                console.log(`📝 "${food}" → ${getCategoryName(category)}`);
+            });
         });
 
         // Inicializar seletor de data do diário
@@ -2262,46 +2396,113 @@
         let torchEnabled = false;
 
         // Iniciar scanner de código de barras
-        function startBarcodeScanner() {
+        async function startBarcodeScanner() {
             const modal = document.getElementById('barcode-scanner-modal');
+            const readerDiv = document.getElementById('barcode-reader');
+            
+            // Limpar conteúdo anterior
+            readerDiv.innerHTML = '<p style="color: white; text-align: center;">📷 Inicializando câmera...</p>';
+            
             modal.style.display = 'flex';
             
-            // Configuração do scanner
-            const config = {
-                fps: 10,
-                qrbox: { width: 280, height: 100 },
-                aspectRatio: 1.777778,
-                supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_BARCODE]
-            };
-
-            html5QrcodeScanner = new Html5QrcodeScanner(
-                "barcode-reader",
-                config,
-                false
-            );
-
-            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            try {
+                // Verificar se há câmeras disponíveis
+                const devices = await Html5Qrcode.getCameras();
+                
+                if (devices && devices.length > 0) {
+                    // Preferir câmera traseira se disponível
+                    let cameraId = devices[0].id;
+                    for (let device of devices) {
+                        if (device.label && device.label.toLowerCase().includes('back')) {
+                            cameraId = device.id;
+                            break;
+                        }
+                    }
+                    
+                    // Criar nova instância do scanner
+                    html5QrcodeScanner = new Html5Qrcode("barcode-reader");
+                    
+                    // Configurações otimizadas
+                    const config = {
+                        fps: 10,
+                        qrbox: { width: 280, height: 100 },
+                        aspectRatio: 1.0,
+                        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_BARCODE],
+                        showTorchButtonIfSupported: true,
+                        showZoomSliderIfSupported: true
+                    };
+                    
+                    // Iniciar o scanner
+                    await html5QrcodeScanner.start(
+                        cameraId,
+                        config,
+                        onScanSuccess,
+                        onScanFailure
+                    );
+                    
+                } else {
+                    throw new Error('Nenhuma câmera encontrada');
+                }
+                
+            } catch (error) {
+                console.error("Erro ao iniciar scanner:", error);
+                
+                // Mostrar mensagem de erro amigável
+                readerDiv.innerHTML = `
+                    <div style="color: white; text-align: center; padding: 20px;">
+                        <h4>❌ Erro ao Acessar Câmera</h4>
+                        <p style="margin: 12px 0; font-size: 14px;">Possíveis soluções:</p>
+                        <ul style="text-align: left; font-size: 14px; margin: 12px 0;">
+                            <li>✅ Permitir acesso à câmera no navegador</li>
+                            <li>🔒 Usar HTTPS (localhost funciona)</li>
+                            <li>📱 Tentar em outro navegador</li>
+                            <li>🔄 Recarregar a página</li>
+                        </ul>
+                        <p style="font-size: 13px; opacity: 0.8; margin-top: 16px;">
+                            💡 Você pode usar o campo "Digite o código manualmente" como alternativa
+                        </p>
+                    </div>
+                `;
+                
+                // Se falhou, deixar pelo menos o botão de fechar funcional
+                setTimeout(() => {
+                    const closeBtn = document.querySelector('.scanner-btn-close');
+                    if (closeBtn) {
+                        closeBtn.style.display = 'block';
+                    }
+                }, 1000);
+            }
         }
 
         // Parar scanner
         function stopBarcodeScanner() {
             if (html5QrcodeScanner) {
-                html5QrcodeScanner.clear().then(() => {
+                html5QrcodeScanner.stop().then(() => {
+                    html5QrcodeScanner.clear();
                     document.getElementById('barcode-scanner-modal').style.display = 'none';
                     html5QrcodeScanner = null;
                 }).catch(error => {
                     console.error("Erro ao parar scanner:", error);
+                    // Forçar fechamento mesmo com erro
                     document.getElementById('barcode-scanner-modal').style.display = 'none';
                     html5QrcodeScanner = null;
+                    
+                    // Limpar o div do scanner
+                    document.getElementById('barcode-reader').innerHTML = '';
                 });
             } else {
                 document.getElementById('barcode-scanner-modal').style.display = 'none';
+                document.getElementById('barcode-reader').innerHTML = '';
             }
+            
+            torchEnabled = false;
         }
 
         // Callback quando código é lido com sucesso
         function onScanSuccess(decodedText, decodedResult) {
             console.log(`Código lido: ${decodedText}`);
+            
+            // Parar scanner e buscar produto
             stopBarcodeScanner();
             searchProductByBarcode(decodedText);
         }
@@ -2309,26 +2510,29 @@
         // Callback quando ocorre erro na leitura
         function onScanFailure(error) {
             // Silencioso - erros de leitura são normais durante o scan
+            // console.log('Tentando ler código...', error);
         }
 
         // Alternar flash/lanterna
-        function toggleTorch() {
+        async function toggleTorch() {
             if (html5QrcodeScanner && html5QrcodeScanner.getState() === Html5QrcodeScannerState.SCANNING) {
-                const cameras = html5QrcodeScanner.getCameras();
-                if (cameras && cameras.length > 0) {
-                    const cameraId = cameras[0].id;
-                    
+                try {
                     if (!torchEnabled) {
-                        html5QrcodeScanner.applyVideoConstraints({
+                        await html5QrcodeScanner.applyVideoConstraints({
                             advanced: [{ torch: true }]
                         });
                         torchEnabled = true;
+                        document.querySelector('.scanner-btn-torch').style.background = '#d97706';
                     } else {
-                        html5QrcodeScanner.applyVideoConstraints({
+                        await html5QrcodeScanner.applyVideoConstraints({
                             advanced: [{ torch: false }]
                         });
                         torchEnabled = false;
+                        document.querySelector('.scanner-btn-torch').style.background = '#f59e0b';
                     }
+                } catch (error) {
+                    console.log("Flash não suportado neste dispositivo");
+                    alert("⚠️ Flash não disponível neste dispositivo");
                 }
             }
         }
@@ -2435,6 +2639,8 @@
                 }
             }
 
+            const autoCategory = getCategoryFromName(name);
+
             // Adicionar ao banco pessoal
             customFoods[name] = {
                 calories: calories,
@@ -2442,6 +2648,7 @@
                 carbs: carbs,
                 fat: fat,
                 unit: 'g',
+                category: autoCategory,
                 custom: true,
                 source: 'Scanner',
                 barcode: barcode
@@ -2462,7 +2669,11 @@
 
         // Preparar produto para edição manual
         function addManualProduct(barcode) {
-            document.getElementById('new-food-name').value = `Produto ${barcode}`;
+            const productName = `Produto ${barcode}`;
+            const autoCategory = getCategoryFromName(productName);
+            
+            document.getElementById('new-food-name').value = productName;
+            document.getElementById('new-food-category').value = autoCategory;
             document.getElementById('new-food-quantity').value = '100';
             document.getElementById('barcode-result').style.display = 'none';
             
@@ -2599,6 +2810,7 @@
             }
 
             const tacoFood = tacoDatabase[foodName];
+            const autoCategory = getCategoryFromName(foodName);
             
             // Adicionar ao banco pessoal
             customFoods[foodName] = {
@@ -2607,6 +2819,7 @@
                 carbs: tacoFood.carbs,
                 fat: tacoFood.fat,
                 unit: tacoFood.unit,
+                category: autoCategory,
                 custom: true,
                 source: 'TACO'
             };
@@ -2633,12 +2846,20 @@
         // Adicionar novo alimento personalizado
         function addNewFood() {
             const name = document.getElementById('new-food-name').value.trim();
+            let category = document.getElementById('new-food-category').value;
             const unit = document.getElementById('new-food-unit').value;
             const quantity = parseFloat(document.getElementById('new-food-quantity').value);
             const calories = parseFloat(document.getElementById('new-food-calories').value);
             const protein = parseFloat(document.getElementById('new-food-protein').value) || 0;
             const carbs = parseFloat(document.getElementById('new-food-carbs').value) || 0;
             const fat = parseFloat(document.getElementById('new-food-fat').value) || 0;
+
+            // Se não selecionou categoria específica ou está em "outros", tentar detectar automaticamente
+            if (!category || category === 'outros') {
+                const autoCategory = getCategoryFromName(name);
+                category = autoCategory;
+                console.log(`🔄 Categoria automática aplicada: ${autoCategory}`);
+            }
 
             // Validação
             if (!name) {
@@ -2673,15 +2894,19 @@
                 carbs: Math.round(carbs * multiplier * 10) / 10,
                 fat: Math.round(fat * multiplier * 10) / 10,
                 unit: unit,
+                category: category,
                 custom: true,
                 source: 'Manual'
             };
+            
+            console.log(`✅ Alimento "${name}" adicionado na categoria "${category}"`);
 
             // Adicionar também ao banco principal para usar na busca
             foodDatabase[name] = customFoods[name];
 
             // Limpar formulário
             document.getElementById('new-food-name').value = '';
+            document.getElementById('new-food-category').value = 'outros';
             document.getElementById('new-food-quantity').value = '';
             document.getElementById('new-food-calories').value = '';
             document.getElementById('new-food-protein').value = '';
@@ -2725,8 +2950,10 @@
                         sourceColor = '#6b7280';
                 }
                 
+                const category = food.category || 'outros';
+                
                 html += `
-                    <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+                    <div class="food-item" data-category="${category}" style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin-bottom: 8px;">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                             <div>
                                 <div style="font-weight: 600; color: #374151;">${name}</div>
@@ -2745,6 +2972,140 @@
             });
 
             container.innerHTML = html;
+            
+            // Aplicar filtro de categoria atual (só se há abas no DOM)
+            const categoryTabs = document.querySelectorAll('.category-tab');
+            if (categoryTabs.length > 0) {
+                if (window.currentCategory && window.currentCategory !== 'todos') {
+                    showCategory(window.currentCategory);
+                } else {
+                    showCategory('todos');
+                }
+            } else {
+                // Se não há abas ainda, apenas definir a categoria padrão
+                currentCategory = 'todos';
+                window.currentCategory = 'todos';
+            }
+        }
+
+        // === SISTEMA DE CATEGORIAS ===
+        
+        let currentCategory = 'todos';
+
+        // Determinar categoria automaticamente baseada no nome do alimento
+        function getCategoryFromName(foodName) {
+            const name = foodName.toLowerCase().trim();
+            
+            // Debug log
+            console.log(`🔍 Categorizando: "${foodName}" → "${name}"`);
+            
+            // Proteínas (carnes, peixes, ovos)
+            if (name.match(/\b(frango|carne|boi|porco|peixe|salm[aã]o|atum|sardinha|camar[aã]o|ovo|proteina|whey|peito|coxa|alcatra|patinho|maminha|contra.file|fil[eé]|picanha|costela|lingu[iií][cç]a|presunto|mortadela|peru|chester|bacalhau|merluza|til[aá]pia|dourado|nugget|hamburguer|salsicha|linguiça|bacon|toucinho)\b/)) {
+                console.log(`✅ Categoria: proteinas`);
+                return 'proteinas';
+            }
+            
+            // Laticínios
+            if (name.match(/\b(leite|queijo|iogurte|requeij[aã]o|cream.cheese|ricota|mussarela|prato|minas|parmes[aã]o|gouda|coalho|cottage|nata|creme.de.leite|manteiga|margarina|kefir|coalhada)\b/)) {
+                console.log(`✅ Categoria: lacteos`);
+                return 'lacteos';
+            }
+            
+            // Frutas
+            if (name.match(/\b(banana|ma[cç][aã]|laranja|uva|manga|abacaxi|morango|pera|p[eê]ssego|melancia|mel[aã]o|kiwi|abacate|coco|lim[aã]o|mam[aã]o|goiaba|maracuj[aá]|acerola|caju|ameixa|cereja|framboesa|mirtilo|figo|tangerina|bergamota|mexerica|carambola|jaca|cacau|fruta)\b/)) {
+                console.log(`✅ Categoria: frutas`);
+                return 'frutas';
+            }
+            
+            // Vegetais e legumes
+            if (name.match(/\b(alface|tomate|cebola|alho|cenoura|batata|br[oó]colis|couve|espinafre|abobrinha|ab[oó]bora|berinjela|piment[aã]o|pepino|rabanete|beterraba|nabo|repolho|couve.flor|aspargo|acelga|r[uú]cula|agri[aã]o|salsa|cebolinha|coentro|manjeric[aã]o|chicoria|end[ií]via|escarola|quiabo|vagem|ervilha|milho|palmito|alcachofra|chuchu|jil[oó]|maxixe|inhame|mandioca|mandioquinha|car[aá]|vegetal|verdura|legume)\b/)) {
+                console.log(`✅ Categoria: vegetais`);
+                return 'vegetais';
+            }
+            
+            // Carboidratos (grãos, massas, doces)
+            if (name.match(/\b(arroz|macarr[aã]o|p[aã]o|biscoito|bolacha|torrada|aveia|granola|cereal|farinha|tapioca|massa|lasanha|nhoque|pizza|sanduiche|torta|bolo|doce|a[cç][uú]car|mel|geleia|chocolate|bombom|pirulito|bala|refrigerante|suco|energ[eé]tico|quinoa|trigo|cevada|centeio|polenta|farofa|cuscuz|crepe|waffle|panqueca|sorvete|pudim|mousse|brigadeiro|beijinho|pa[cç]oca|rapadura|doce.de.leite|condensado)\b/)) {
+                console.log(`✅ Categoria: carboidratos`);
+                return 'carboidratos';
+            }
+            
+            // Gorduras (óleos, oleaginosas)
+            if (name.match(/\b(azeite|[oó]leo|castanha|amendoim|noz|am[eê]ndoa|avel[aã]|pistache|pecan|macad[aâ]mia|pinh[aã]o|girassol|azeitona|semente|chia|linha[cç]a|s[eé]samo|gergelim|creme.de.amendoim|pasta.de.amendoim|tahine|banha|gordura)\b/)) {
+                console.log(`✅ Categoria: gorduras`);
+                return 'gorduras';
+            }
+            
+            console.log(`⚪ Categoria: outros (padrão)`);
+            return 'outros';
+        }
+
+        // Sugerir categoria automaticamente enquanto digita
+        function suggestCategory() {
+            const nameInput = document.getElementById('new-food-name');
+            const categorySelect = document.getElementById('new-food-category');
+            const suggestionDiv = document.getElementById('category-suggestion');
+            
+            if (nameInput.value.trim().length > 2) {
+                const suggestedCategory = getCategoryFromName(nameInput.value);
+                
+                if (suggestedCategory !== 'outros') {
+                    categorySelect.value = suggestedCategory;
+                    suggestionDiv.style.display = 'block';
+                    suggestionDiv.textContent = `💡 Categoria "${getCategoryName(suggestedCategory)}" detectada automaticamente`;
+                } else {
+                    suggestionDiv.style.display = 'none';
+                }
+            } else {
+                suggestionDiv.style.display = 'none';
+            }
+        }
+
+        // Obter nome da categoria em português
+        function getCategoryName(category) {
+            const names = {
+                'proteinas': 'Proteínas',
+                'lacteos': 'Laticínios',
+                'frutas': 'Frutas',
+                'vegetais': 'Vegetais',
+                'carboidratos': 'Carboidratos',
+                'gorduras': 'Gorduras',
+                'outros': 'Outros'
+            };
+            return names[category] || 'Outros';
+        }
+
+        // Mostrar categoria específica
+        function showCategory(category) {
+            currentCategory = category;
+            window.currentCategory = category;
+            
+            // Atualizar abas ativas (só se existirem)
+            const categoryTabs = document.querySelectorAll('.category-tab');
+            if (categoryTabs.length > 0) {
+                categoryTabs.forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Ativar aba correta
+                const targetTab = document.querySelector(`[onclick="showCategory('${category}')"]`);
+                if (targetTab) {
+                    targetTab.classList.add('active');
+                }
+            }
+            
+            // Mostrar/ocultar itens
+            const foodItems = document.querySelectorAll('.food-item');
+            foodItems.forEach(item => {
+                const itemCategory = item.getAttribute('data-category');
+                
+                if (category === 'todos' || itemCategory === category) {
+                    item.classList.add('show');
+                    item.style.display = 'block';
+                } else {
+                    item.classList.remove('show');
+                    item.style.display = 'none';
+                }
+            });
         }
 
         // Remover alimento personalizado
@@ -3395,6 +3756,16 @@
                         if (userData.waterEntries) waterEntries = userData.waterEntries;
                         if (userData.customFoods) {
                             customFoods = userData.customFoods;
+                            
+                            // Atualizar alimentos sem categoria (para retrocompatibilidade)
+                            Object.keys(customFoods).forEach(foodName => {
+                                if (!customFoods[foodName].category) {
+                                    const autoCategory = getCategoryFromName(foodName);
+                                    customFoods[foodName].category = autoCategory;
+                                    console.log(`🔄 Categoria automática aplicada para "${foodName}": ${autoCategory}`);
+                                }
+                            });
+                            
                             // Reintegrar alimentos personalizados ao banco principal
                             Object.entries(customFoods).forEach(([name, food]) => {
                                 foodDatabase[name] = food;
@@ -3434,8 +3805,16 @@
                         updateWaterDisplay();
                         updateWaterLog();
                         updateSummary();
+                        
+                        // Atualizar lista de alimentos com delay para garantir DOM carregado
+                        setTimeout(() => {
+                            const customFoodsContainer = document.getElementById('custom-foods-list');
+                            if (customFoodsContainer) {
+                                updateCustomFoodsList();
+                            }
+                        }, 100);
                     } else {
-                        // Dados antigos, manter apenas histórico de alimentos e metas
+                        // Dados antigos, manter apenas histórico de alimentos e metas (incluindo água)
                         if (userData.targets) {
                             userTargets = userData.targets;
                             document.getElementById('history-target-calories').textContent = userTargets.calories;
@@ -3443,6 +3822,25 @@
                             document.getElementById('history-target-carbs').textContent = userTargets.carbs;
                             document.getElementById('history-target-fat').textContent = userTargets.fat;
                             document.getElementById('history-target-water').textContent = userTargets.water;
+                            
+                            // Mostrar metas calculadas se existirem (não são valores padrão)
+                            if (userData.targets.calories !== 2000) {
+                                document.getElementById('meta-calorias').textContent = userTargets.calories + ' kcal';
+                                document.getElementById('meta-proteinas').textContent = userTargets.protein + 'g';
+                                document.getElementById('meta-carboidratos').textContent = userTargets.carbs + 'g';
+                                document.getElementById('meta-gorduras').textContent = userTargets.fat + 'g';
+                                document.getElementById('metas-resultado').classList.remove('hidden');
+                            }
+
+                            // Mostrar meta de água se existir (não é valor padrão)
+                            if (userData.targets.water !== 2000) {
+                                document.getElementById('water-goal-display').textContent = userTargets.water + 'ml';
+                                document.getElementById('water-goal-result').classList.remove('hidden');
+                            }
+                            
+                            // Atualizar metas na interface atual
+                            document.getElementById('water-target').textContent = userTargets.water;
+                            document.getElementById('diary-target-water').textContent = userTargets.water;
                         }
                         if (userData.foodUsageCount) {
                             foodUsageCount = userData.foodUsageCount;
@@ -3470,6 +3868,15 @@
                         updateWaterDisplay();
                         updateWaterLog();
                         updateSummary();
+                        
+                        // Atualizar lista de alimentos com delay
+                        setTimeout(() => {
+                            const customFoodsContainer = document.getElementById('custom-foods-list');
+                            if (customFoodsContainer) {
+                                updateCustomFoodsList();
+                            }
+                        }, 100);
+                        
                         saveUserData(); // Salvar dados limpos
                     }
                 }
